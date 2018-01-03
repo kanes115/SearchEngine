@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+        <style>
+    div {
+        padding: 15px;
+    }
+</style>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web engine</title>
+</head>
+<body>
+    <div class="jumbotron" align="center">
+            <input id='phrase' type='text' name='search_phrase' size='100'>
+            <input id='resc' type='number' min='1' max='100' name='resc'>
+            <input id='noise_reduction' type="checkbox" name="noise_reduction" value="Use noise reduction">     Use noise reduction</br>
+            <button onclick='fetchAndDisplay()' class='btn btn-default'>Search</button>
+        </form>
+    </div>
+
+    <div id='results' align="center">
+
+    </div>
+
+</body>
+</html>
+
+<script>
+    function httpGet(loc, res) {
+        console.log("Sending GET... " + loc.protocol + '//' + loc.host + res);
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", loc.protocol + '//' + loc.host + res, false ); // false for synchronous request
+        xmlHttp.send( null );
+        return JSON.parse(xmlHttp.responseText);
+    }
+
+    function fetchAndDisplay(){
+        var phrase = document.getElementById('phrase').value
+
+      var res = httpGet(window.location, '/search?phrase=' + phrase + '&resc=' + document.getElementById('resc').value
+      + '&noise_reduction=' + document.getElementById('noise_reduction').checked);
+        var div = document.getElementById('results');
+        console.log(res);
+
+      if(!res['is_correct']){
+        div.innerHTML = "<h1>Error: " + res['error_msg'] + "</h1>";
+        return;
+      }
+        
+        
+        var cont = "<ul class='list-group'>";
+        res["results"].forEach(function(r) {
+          cont += "<li> <a href='" + r["path"] + "'>" + r["path"] + "</a> with score: " + r["correctness"] + "</li>";
+        });
+        div.innerHTML = cont;
+    }
+</script>

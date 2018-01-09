@@ -12,6 +12,8 @@ import numpy as np
 import math
 import sys
 import signal
+import scipy.sparse as sc
+import scipy.sparse.linalg as la
 
 ## it gets a word to its basic form
 def word_base(x):
@@ -105,11 +107,11 @@ def stop_and_save(signal, frame):
     to_stop = True
 
 def reduce_noise(A):
-    u, d, v = sc.linalg.svds(A)
+    u, d, v = la.svds(A)
     Ar = sc.csc_matrix(A.shape)
     for i in range(len(d) // 2 ):
         Ar += (d[i] * np.outer(u.T[i], v[i]))
-    return sc.csc_matrix(Ar)
+    return Ar
 
 ## main
 ## Documents directory
@@ -127,15 +129,16 @@ term_by_document, files = create_term_by_doc(files, bag_v, doc_words_dict)
 
 term_by_document = term_by_document.astype(float)
 
-if do_noise_reduction:
-    term_by_document = reduce_noise(term_by_document)
-
 apply_idf(term_by_document)
 
 if do_noise_reduction:
+    term_by_document = reduce_noise(term_by_document)
+
+
+if do_noise_reduction:
     np.save('./priv/engine/indices/term_by_document_noise_reduction', term_by_document)
-    np.save('./priv/engine/indices/bag_of_word_document_noise_reductions', bag_v)
-    np.save('./priv/engine/indices/files_order_document_noise_reduction', np.array(files))
+    np.save('./priv/engine/indices/bag_of_words_noise_reduction', bag_v)
+    np.save('./priv/engine/indices/files_order_noise_reduction', np.array(files))
 else:
     np.save('./priv/engine/indices/term_by_document', term_by_document)
     np.save('./priv/engine/indices/bag_of_words', bag_v)

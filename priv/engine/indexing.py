@@ -28,9 +28,16 @@ def parse_args():
     print('python3 indexing.py amount_of_files [--noise-reduction]')
     exit(1)
 
+from subprocess import call
 def get_words_of_file(filepath):
         f = open(filepath, 'r')
-        content = f.read()
+        content = ""
+        try:
+            content = f.read()
+        except Exception:
+            f.close()
+            print("Deleting...")
+            call(["rm", "-rf", filepath])
         f.close()
         return list(map(lambda x: word_base(x), content.split()))
 
@@ -115,7 +122,7 @@ def reduce_noise(A):
 
 ## main
 ## Documents directory
-doc_dir = './priv/static/documents/'
+doc_dir = './priv/static/documents/contents/'
 amount_files, do_noise_reduction = parse_args()
 
 files, doc_words_dict = get_filepaths(doc_dir, amount_files)

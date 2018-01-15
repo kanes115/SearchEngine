@@ -60,7 +60,7 @@
         
         var cont = "<ul class='list-group'>";
         res["results"].forEach(function(r) {
-          cont += "<li> <a href='" + r["path"] + "'>" + r["path"] + "</a> with score: " + r["correctness"] + "</li>";
+          cont += "<li> <a href='" + r["path"] + "'>" + r["path"] + "</a> with score: " + r["correctness"] + "<a href='https://en.wikipedia.org/?curid=" + r["pageid"] + "'>[wikipedia link]</a></li>";
         });
         div.innerHTML = cont;
     }

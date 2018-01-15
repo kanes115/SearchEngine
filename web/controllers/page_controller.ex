@@ -42,9 +42,15 @@ defmodule SearchServer.PageController do
         String.trim("\n") |>
         String.split("#") |>
         Enum.map(fn(x) -> split_single_result(x) end) |>
-        Enum.drop(-1)
+        Enum.drop(-1) |> #At the end empty string, so dropping it
+        Enum.map(fn ({file, corr}) -> {change_contents_for_html(file), corr} end)
   end
 
+  def change_contents_for_html(file) do
+    file 
+    |> String.replace("/contents/", "/htmls/")
+    |> String.replace(".txt", ".html")
+  end
 
   def split_single_result(s) do
     [h | t] = String.split(s, "$")
@@ -53,7 +59,13 @@ defmodule SearchServer.PageController do
 
   def result_to_map({path, [corr]}) do
     {corrf, ""} = Float.parse(corr)
-    %{correctness: corrf, path: path |> make_relative()}
+    [filename] = path |> String.split("/")
+         |> Enum.take(-1)
+    [id] = filename
+         |> String.split(".")
+         |> Enum.take(1)
+    {idint, ""} = Integer.parse(id)
+    %{correctness: corrf, path: path |> make_relative(), pageid: idint}
   end
 
   def make_relative(s) do
